@@ -28,9 +28,15 @@ jobs:
         with:
           version: v3.12.1
 
+      - name: Add Helm repositories
+        run: |
+          helm repo add harness-common https://harness.github.io/helm-common || echo "Failed to add harness-common"
+          helm repo add harness-charts https://harness.github.io/helm-charts || echo "Failed to add harness-charts"
+          helm repo update
+
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.6.0
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         with:
-          charts_dir: . # This tells it to look in the root directory
+          charts_dir: .
