@@ -123,6 +123,6 @@ entries:
       name: harness
       type: application
       urls:
-        - https://github.com/VILLA-TECH-Inc/harness/releases/download/harness/harness-0.28.1.tgz
+        - https://github.com/VILLA-TECH-Inc/harness/releases/download/0.28.1/harness-0.28.1.tgz
       version: 0.28.1
 generated: "2025-06-23T16:49:15.768212-04:00"
