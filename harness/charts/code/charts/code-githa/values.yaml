@@ -1,0 +1,313 @@
+global:
+  autoscaling:
+    enabled: false
+  loadbalancerURL: "https://test"
+  imagePullSecrets: []
+  database:
+    redis:
+      installed: true
+      enabled: false
+      protocol: ""
+      hosts: []
+      secretName: ""
+      userKey: ""
+      passwordKey: ""
+      extraArgs: ""
+      ssl:
+        secret: ""
+        enabled: false
+        caFileKey: ""
+        trustStoreKey: ""
+        trustStorePasswordKey: ""
+      secrets:
+        secretManagement:
+          externalSecretsOperator:
+            - secretStore:
+                name: ""
+                kind: ""
+              remoteKeys:
+                REDIS_USERNAME:
+                  name: ""
+                  property: ""
+                REDIS_PASSWORD:
+                  name: ""
+                  property: ""
+                REDIS_CA:
+                  name: ""
+                  property: ""
+                REDIS_SSL_CA_TRUST_STORE_PASSWORD:
+                  name: ""
+                  property: ""
+    postgres:
+      ## - installed = true if installed within cluster
+      installed: true
+      ## - protocol to use for connection
+      protocol: postgres
+      ## - host array for external
+      hosts:
+        - postgres:5432
+      ## - secret name containing external values
+      secretName: ""
+      ## - key within secret containing username
+      userKey: ""
+      ## - key within secret containing password
+      passwordKey: ""
+      ## - extra arguments set to connection string
+      extraArgs: ""
+      secrets:
+        kubernetesSecrets:
+          - secretName: ""
+            keys:
+              POSTGRES_USER: ""
+              POSTGRES_PASSWORD: ""
+        secretManagement:
+          externalSecretsOperator:
+            - secretStore:
+                name: ""
+                kind: ""
+              remoteKeys:
+                POSTGRES_USER:
+                  name: ""
+                  property: ""
+                POSTGRES_PASSWORD:
+                  name: ""
+                  property: ""
+  waitForInitContainer:
+    enabled: true
+    image:
+      registry: docker.io
+      repository: harness/helm-init-container
+      pullPolicy: Always
+      tag: "latest"
+      digest: "sha256:c06cab15920d2f99a000f913316a76cd867c73fc8d7b2e68ba4851b39e64aa97"
+  ingress:
+    # -- create ingress objects
+    bodySize: 1024m
+    readTimeout: 300
+    enabled: false
+    # -- set ingress object classname
+    className: harness
+    # -- set host of ingressObjects
+    hosts:
+      - my-host.example.org
+    # -- set tls for ingress objects
+    tls:
+      enabled: true
+      secretName: ''
+    # -- add annotations to ingress objects
+    objects:
+      annotations: {}
+nameOverride: ""
+fullnameOverride: ""
+image:
+  registry: docker.io
+  repository: harness/code-githa-signed
+  pullPolicy: IfNotPresent
+  tag: "1.34.0"
+  digest: "sha256:8c99b1dbccbb1c1e75dc44a278a50eda3eba2fc279df93503a43d63c627c5079"
+  imagePullSecrets: []
+nodeSelector: {}
+tolerations: []
+affinity: {}
+waitForInitContainer:
+  ## image version
+  ## ref: https://hub.docker.com/r/harness/helm-init-container/tags
+  # --image.registry ; image registry
+  # --image.repository ; image repository
+  # --image.tag ; image tag (immutable tags are recommended)
+  # --image.digest ; image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag
+  # --image.pullPolicy Image pull policy
+  # --image.imagePullSecrets Specify docker-registry secret names as an array
+  image:
+    registry: docker.io
+    repository: harness/helm-init-container
+    pullPolicy: IfNotPresent
+    tag: "latest"
+    digest: "sha256:c06cab15920d2f99a000f913316a76cd867c73fc8d7b2e68ba4851b39e64aa97"
+    imagePullSecrets: []
+  resources:
+    limits:
+      cpu: 128m
+      memory: 128Mi
+    requests:
+      cpu: 128m
+      memory: 128Mi
+  containerSecurityContext:
+    runAsUser: 65534
+    runAsNonRoot: true
+instances: 1
+autoscaling:
+  minReplicas: 2
+  maxReplicas: 4
+config:
+  CODE_TRACE: false
+  CODE_DEBUG: false
+  CODE_PROFILER_TYPE: "GCP"
+  CODE_SERVER_GRACEFUL_SHUTDOWN_TIME: 300
+  CODE_GITHA_NODES_CONFIG_PATH: "/app/config/nodes.yaml"
+  CODE_GITHA_GRPC_SERVER_PORT: 3001
+  CODE_GITHA_HTTP_SERVER_PORT: 4001
+  CODE_GITHA_GRPC_SERVER_MAX_CONN_AGE: "630720000s" # with kuberesolver there is no need to set max age on grpc conn
+  CODE_GITHA_GRPC_SERVER_MAX_CONN_AGE_GRACE: "630720000s"
+  CODE_GITHA_PUBSUB_PROVIDER: "redis"
+  CODE_GITHA_PUBSUB_APP_NAMESPACE: "code-githa"
+  CODE_GITHA_TIMEOUT_OPERATION_WRITE: "3m"
+  CODE_GITHA_DATABASE_DRIVER: "postgres"
+  CODE_GITHA_PROFILER_SERVICE_NAME: ""
+  CODE_GITHA_LOCK_PROVIDER: "redis"
+secrets:
+  default:
+  kubernetesSecrets:
+    - secretName: ""
+      keys:
+  secretManagement:
+    externalSecretsOperator:
+      - secretStore:
+          name: ""
+          kind: ""
+        remoteKeys:
+          HARNESS_GENAI_KEY:
+            name: ""
+            property: ""
+postgresPassword:
+  name: postgres
+  key: postgres-password
+postgres:
+  ## - protocol to use for connection
+  protocol: ""
+  ## - host array for external
+  hosts: []
+  extraArgs: ""
+  image:
+    registry: docker.io
+    repository: bitnami/postgresql
+    pullPolicy: IfNotPresent
+    tag: "14.11.0-debian-11-r17"
+    digest: "sha256:2dddf267983fd5cb0c90086f8b2eddccd19e51e543c88683dfc45ab160966503"
+    imagePullSecrets: []
+  secrets:
+    kubernetesSecrets:
+      - secretName: ""
+        keys:
+          POSTGRES_USER: ""
+          POSTGRES_PASSWORD: ""
+    secretManagement:
+      externalSecretsOperator:
+        - secretStore:
+            name: ""
+            kind: ""
+          remoteKeys:
+            POSTGRES_USER:
+              name: ""
+              property: ""
+            POSTGRES_PASSWORD:
+              name: ""
+              property: ""
+initializeDatabase:
+  enabled: true
+redis:
+  protocol: ""
+  hosts: []
+  secretName: ""
+  userKey: ""
+  passwordKey: ""
+  extraArgs: ""
+  secrets:
+    kubernetesSecrets:
+      - secretName: ""
+        keys:
+          REDIS_USERNAME: ""
+          REDIS_PASSWORD: ""
+    secretManagement:
+      externalSecretsOperator:
+        - secretStore:
+            name: ""
+            kind: ""
+          remoteKeys:
+            REDIS_USERNAME:
+              name: ""
+              property: ""
+            REDIS_PASSWORD:
+              name: ""
+              property: ""
+serviceAccount:
+  create: true
+  annotations: {}
+  name: "code-githa"
+database:
+  redis:
+    events:
+      protocol: ""
+      hosts: []
+      extraArgs: ""
+      ssl:
+        enabled: false
+        secret: ""
+        caFileKey: ""
+        trustStoreKey: ""
+        trustStorePasswordKey: ""
+      secrets:
+        kubernetesSecrets:
+          - secretName: ""
+            keys:
+              REDIS_USERNAME: ""
+              REDIS_PASSWORD: ""
+        secretManagement:
+          externalSecretsOperator:
+            - secretStore:
+                name: ""
+                kind: ""
+              remoteKeys:
+                REDIS_USERNAME:
+                  name: ""
+                  property: ""
+                REDIS_PASSWORD:
+                  name: ""
+                  property: ""
+    code-githa:
+      protocol: ""
+      hosts: []
+      extraArgs: ""
+      ssl:
+        enabled: false
+        secret: ""
+        caFileKey: ""
+        trustStoreKey: ""
+        trustStorePasswordKey: ""
+      secrets:
+        kubernetesSecrets:
+          - secretName: ""
+            keys:
+              REDIS_USERNAME: ""
+              REDIS_PASSWORD: ""
+        secretManagement:
+          externalSecretsOperator:
+            - secretStore:
+                name: ""
+                kind: ""
+              remoteKeys:
+                REDIS_USERNAME:
+                  name: ""
+                  property: ""
+                REDIS_PASSWORD:
+                  name: ""
+                  property: ""
+distribution:
+  CODE_GITHA_DISTRIBUTION_DEFAULT_REPLICATION_FACTOR: 3
+  CODE_GITHA_DISTRIBUTION_NODE_SELECTION_STRATEGY: "least_replica_count_first"
+resources:
+  limits:
+    memory: 512Mi
+  requests:
+    cpu: 256m
+    memory: 256Mi
+NODES: []
+NODES_COUNT: 3
+busybox:
+  image:
+    registry: docker.io
+    repository: busybox
+    pullPolicy: IfNotPresent
+    tag: "1.37.0"
+    digest: "sha256:37f7b378a29ceb4c551b1b5582e27747b855bbfaa73fa11914fe0df028dc581f"
+    imagePullSecrets: []

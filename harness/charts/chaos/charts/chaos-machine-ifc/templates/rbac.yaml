@@ -1,0 +1,32 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: chaos-machine-ifc
+  namespace: '{{ .Release.Namespace }}'
+  labels:
+    name: chaos-machine-ifc
+    {{- include "chaos-machine-ifc.labels" . | nindent 4 }}
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get","list"]
+  - apiGroups: ["coordination.k8s.io"]
+    resources: ["leases"]
+    verbs: ["get","create","list","update","delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: chaos-machine-ifc
+  namespace: '{{ .Release.Namespace }}'
+  labels:
+    name: chaos-machine-ifc
+    {{- include "chaos-machine-ifc.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: chaos-machine-ifc
+subjects:
+  - kind: ServiceAccount
+    name: '{{ include "chaos-machine-ifc.serviceAccountName" . }}'

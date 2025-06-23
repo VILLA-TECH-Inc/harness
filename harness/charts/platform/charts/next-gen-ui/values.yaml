@@ -1,0 +1,177 @@
+# Default values for next-gen-ui
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+global:
+  autoscaling:
+    enabled: false
+  pdb:
+    create: false
+  kubeVersion: ""
+  loadbalancerURL: ""
+  imagePullSecrets: []
+  cg:
+    enabled: false
+  commonLabels: {}
+  commonAnnotations: {}
+  ingress:
+    disableHostInIngress: false
+    pathPrefix: ""
+    pathType:
+    # -- create ingress objects
+    enabled: false
+    # -- set ingress object classname
+    className: harness
+    # -- set host of ingressObjects
+    hosts:
+      - my-host.example.org
+    # -- set tls for ingress objects
+    tls:
+      enabled: true
+      secretName: ""
+    # -- add annotations to ingress objects
+    objects:
+      annotations: {}
+  istio:
+    # -- create virtualServices objects
+    enabled: false
+    # -- create gateway and use in virtualservice
+    gateway:
+      create: false
+    # -- if gateway not created, use specified gateway and host
+    virtualService:
+      gateways:
+      hosts:
+replicaCount: 1
+maxSurge: 1
+maxUnavailable: 0
+image:
+  registry: docker.io
+  repository: harness/nextgenui-signed
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "1.70.3"
+  digest: "sha256:0c8223c10072b0af61f7909b206d5e7d8d389d21a4e16e311c6ee664f4e6eca9"
+  imagePullSecrets: []
+waitForInitContainer:
+  image:
+    registry: docker.io
+    repository: harness/helm-init-container
+    pullPolicy: IfNotPresent
+    tag: "latest"
+    digest: "sha256:b8cb03089a08ff78bd59f9bdb29c9a0987517314e6f2245640d242345b9428dd"
+    imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: "harness-default"
+podAnnotations: {}
+podLabels: {}
+imagePullSecrets: {}
+podSecurityContext: {}
+# fsGroup: 2000
+
+securityContext:
+  runAsUser: 65534
+  runAsNonRoot: true
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+probes:
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: ng-ui-port
+    periodSeconds: 10
+    failureThreshold: 5
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: ng-ui-port
+    periodSeconds: 10
+    failureThreshold: 5
+  startupProbe:
+    httpGet:
+      path: /health
+      port: ng-ui-port
+    periodSeconds: 10
+    failureThreshold: 30
+service:
+  type: ClusterIP
+  protocol: TCP
+  port: 80
+  targetport: 8080
+  annotations: {}
+ingress:
+  objects:
+    - annotations:
+        nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+        nginx.ingress.kubernetes.io/rewrite-target: /$2
+        nginx.ingress.kubernetes.io/use-regex: "true"
+      paths:
+        - path: '{{ .Values.global.ingress.pathPrefix }}/ng(/|$)(.*)'
+resources:
+  limits:
+    memory: 200Mi
+  requests:
+    cpu: 0.2
+    memory: 200Mi
+autoscaling:
+  enabled: false
+  targetCPU: ""
+  targetMemory: ""
+nodeSelector: {}
+tolerations: []
+affinity: {}
+additionalConfigs: {}
+# extraVolumes:
+# - name: volume-test
+#   configMap:
+#     name: test-config
+#     readOnly: true
+extraVolumes: []
+# extraVolumeMounts:
+#   - name: test-volume-mount
+#     mountPath: /opt/harness/config
+extraVolumeMounts: []
+# lifecycleHooks:
+#   postStart:
+#     exec:
+#       command:
+#   preStop:
+#     exec:
+#       command:
+
+config:
+  API_URL: /gateway
+  DEPLOYMENT_TYPE: ON_PREM
+  HARNESS_ENABLE_NG_AUTH_UI_PLACEHOLDER: "true"
+  HARNESS_CLUSTER_URL: ""
+  SSCA_PATH_PREFIX: /ssca-manager
+  FME_SERVER_URL: https://app.split.io
+  EXPECTED_HOSTNAME: app.harness.io
+  INCLUDE_ALL_LICENSE_LIFECYCLE_STAGES: "false"
+  CSP_BUGSNAG_ENABLED: "false"
+  CSP_CANNY_ENABLED: "false"
+  CSP_GOOGLEAPIS_ENABLED: "false"
+  CSP_INTERCOM_ENABLED: "false"
+  CSP_REFINER_ENABLED: "false"
+  CSP_SEGMENT_ENABLED: "false"
+  CSP_SPLIT_ENABLED: "false"
+secrets:
+  fileSecret: []
+  default: {}
+  kubernetesSecrets: {}
+  secretManagement: {}
+rbac:
+  rules: []
+pdb:
+  create: false

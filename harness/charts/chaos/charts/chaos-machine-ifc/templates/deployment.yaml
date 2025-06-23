@@ -1,0 +1,120 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chaos-machine-ifc
+  namespace: {{ .Release.Namespace }}
+  labels:
+    component: chaos-machine-ifc
+    app: chaos-machine-ifc
+    {{- include "chaos-machine-ifc.labels" . | nindent 4 }}
+    {{- if .Values.global.commonLabels }}
+    {{- include "harnesscommon.tplvalues.render" ( dict "value" .Values.global.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if .Values.global.commonAnnotations }}
+  annotations: {{- include "harnesscommon.tplvalues.render" ( dict "value" .Values.global.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: {{ .Values.maxSurge }}
+      maxUnavailable: {{ .Values.maxUnavailable }}
+  selector:
+    matchLabels:
+      component: chaos-machine-ifc
+      app: chaos-machine-ifc
+      {{- include "chaos-machine-ifc.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- if or .Values.podAnnotations .Values.global.commonAnnotations }}
+      annotations:
+        {{- if .Values.podAnnotations }}
+          {{- toYaml .Values.podAnnotations | nindent 8 }}
+        {{- end }}
+        {{- if .Values.global.commonAnnotations }}
+          {{- include "harnesscommon.tplvalues.render" ( dict "value" .Values.global.commonAnnotations "context" $ ) | nindent 8 }}
+        {{- end }}
+      {{- end }}
+      labels:
+        component: chaos-machine-ifc
+        app: chaos-machine-ifc
+        {{- include "chaos-machine-ifc.selectorLabels" . | nindent 8 }}
+        {{- if .Values.global.commonLabels }}
+        {{- include "harnesscommon.tplvalues.render" ( dict "value" .Values.global.commonLabels "context" $ ) | nindent 8 }}
+        {{- end }}
+        {{- if .Values.podLabels }}
+        {{- include "harnesscommon.tplvalues.render" (dict "value" .Values.podLabels "context" $) | nindent 8 }}
+        {{- end }}
+    spec:
+      {{ include "chaos-machine-ifc.pullSecrets" . | nindent 6 }}
+      serviceAccountName: {{ include "chaos-machine-ifc.serviceAccountName" . }}
+      containers:
+        - name: chaos-machine-ifc
+          image: {{ include "common.images.image" (dict "imageRoot" .Values.image "global" .Values.global) }}
+          command:
+          - infrastructure-controller
+          args:
+          - -leader-elect=true
+          ports:
+          - containerPort: {{.Values.service.port}}
+          env:
+          # App Secrets
+          {{- include "harnesscommon.renderSecretsAsEnvironmentVariables" (dict "ctx" $) | indent 10}}
+          {{- $redisCacheSSL := include "harnesscommon.dbv4.sslEnv" (dict "context" $ "dbType" "redis" "dbName" "cache" "variableNames" ( dict "sslEnabled" "REDIS_CACHE_SSL_ENABLED" "sslCACertPath" "REDIS_CACHE_CERT_PATH" )) }}
+          {{- if $redisCacheSSL }}
+            {{- include "harnesscommon.dbv4.sslEnv" (dict "context" $ "dbType" "redis" "dbName" "cache" "variableNames" ( dict "sslEnabled" "REDIS_CACHE_SSL_ENABLED" "sslCACertPath" "REDIS_CACHE_CERT_PATH" )) | indent 10 }}
+          {{- else }}
+          - name: REDIS_CACHE_SSL_ENABLED
+            value: "false"
+          - name: REDIS_CACHE_CERT_PATH
+            value: ""
+          {{- end }}
+          {{- $redisEnv := include "harnesscommon.dbv3.redisEnv" (dict "ctx" $ "database" "cache" "userVariableName" "REDIS_CACHE_USERNAME" "passwordVariableName" "REDIS_CACHE_PASSWORD") }}
+          {{- if not $redisEnv }}
+          - name: REDIS_CACHE_USERNAME
+            value: ""
+          - name: REDIS_CACHE_PASSWORD
+            value: ""
+          {{- else }}
+            {{- include "harnesscommon.dbv3.redisEnv" (dict "ctx" $ "database" "cache" "userVariableName" "REDIS_CACHE_USERNAME" "passwordVariableName" "REDIS_CACHE_PASSWORD" ) | indent 10 }}
+          {{- end }}
+          - name: WATCH_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          envFrom:
+            - configMapRef:
+                name: chaos-machine-ifc-config
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          resources:
+              {{- toYaml .Values.resources | nindent 12 }}
+          {{- if .Values.lifecycleHooks }}
+          lifecycle: {{- include "harnesscommon.tplvalues.render" (dict "value" .Values.lifecycleHooks "context" $) | nindent 12 }}
+          {{- end }}
+          
+          volumeMounts:
+          {{- if .Values.extraVolumeMounts }}
+          {{- include "harnesscommon.tplvalues.render" (dict "value" .Values.extraVolumeMounts "context" $) | nindent 12 }}
+          {{- end }}
+          {{- include "harnesscommon.dbv4.sslVolumeMount" (dict "context" $ "dbType" "redis" "dbName" "cache") | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+      {{- if .Values.extraVolumes }}
+      {{- include "harnesscommon.tplvalues.render" ( dict "value" .Values.extraVolumes "context" $ ) | nindent 8 }}
+      {{- end }}
+      {{- include "harnesscommon.dbv4.sslVolume" (dict "context" $ "dbType" "redis" "dbName" "cache") | indent 8 }}

@@ -1,0 +1,12 @@
+dependencies:
+- name: cv-nextgen
+  repository: oci://us-west1-docker.pkg.dev/gcr-prod/harness-helm-artifacts
+  version: 1.37.1
+- name: le-nextgen
+  repository: oci://us-west1-docker.pkg.dev/gcr-prod/harness-helm-artifacts
+  version: 1.8.0
+- name: srm-ui
+  repository: oci://us-west1-docker.pkg.dev/gcr-prod/harness-helm-artifacts
+  version: 1.12.0
+digest: sha256:1c4045383a6335d73a161e90d26fa33ebb39d89eba250bae8302af920e32528f
+generated: "2025-05-27T13:44:08.461567875Z"

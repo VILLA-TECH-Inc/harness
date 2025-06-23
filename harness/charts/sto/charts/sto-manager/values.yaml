@@ -1,0 +1,646 @@
+# Default values for sto-manager
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+global:
+  autoscaling:
+    enabled: false
+  pdb:
+    create: false
+  commonAnnotations: {}
+  commonLabels: {}
+  loadbalancerURL: "https://test"
+  monitoring:
+    enabled: false
+    managedPlatform: ""
+    port: 8889
+    path: /metrics
+  waitForInitContainer:
+    enabled: true
+    image:
+      registry: docker.io
+      repository: harness/helm-init-container
+      pullPolicy: IfNotPresent
+      tag: "latest"
+      digest: "sha256:c06cab15920d2f99a000f913316a76cd867c73fc8d7b2e68ba4851b39e64aa97"
+      imagePullSecrets: []
+  delegate:
+    airgapped: false
+  imagePullSecrets: []
+  istio:
+    enabled: false
+    gateway:
+      create: true
+      port: 443
+      protocol: HTTPS
+    hosts:
+      - '*'
+    strict: true
+    tls:
+      credentialName: ""
+    virtualService:
+      hosts:
+        - ''
+      gateways: []
+  ingress:
+    enabled: false
+    objects:
+      annotations: {}
+    hosts:
+      - 'my-host.example.org'
+    tls:
+      enabled: false
+      secretName: harness-cert
+  stackDriverLoggingEnabled: false
+  database:
+    postgres:
+      ## - installed = true if installed within cluster
+      installed: true
+      ## - protocol to use for connection
+      protocol: postgres
+      ## - host array for external
+      hosts:
+        - postgres:5432
+      ## - secret name containing external values
+      secretName: ""
+      ## - key within secret containing username
+      userKey: ""
+      ## - key within secret containing password
+      passwordKey: ""
+      ## - extra arguments set to connection string
+      extraArgs: ""
+    mongo:
+      installed: true
+      protocol: mongodb
+      # --  provide default values if mongo.installed is set to false
+      hosts:
+        - dummy.net
+      secretName: ""
+      userKey: ""
+      passwordKey: ""
+      extraArgs: ""
+      secrets:
+        kubernetesSecrets:
+          - secretName: ""
+            keys:
+              MONGO_USER: ""
+              MONGO_PASSWORD: ""
+        secretManagement:
+          externalSecretsOperator:
+            - secretStore:
+                name: ""
+                kind: ""
+              remoteKeys:
+                MONGO_USER:
+                  name: ""
+                  property: ""
+                MONGO_PASSWORD:
+                  name: ""
+                  property: ""
+    timescaledb:
+      installed: true
+      protocol: "jdbc:postgresql"
+      # --  provide default values if mongo.installed is set to false
+      hosts:
+        - timescaledb-single-chart:5432
+      # -- Enable TimescaleDB SSL
+      sslEnabled: false
+      secretName: ""
+      userKey: ""
+      passwordKey: ""
+      extraArgs: ""
+      certName: ""
+      certKey: ""
+      secrets:
+        kubernetesSecrets:
+          - secretName: ""
+            keys:
+              TIMESCALEDB_USERNAME: ""
+              TIMESCALEDB_PASSWORD: ""
+              TIMESCALEDB_SSL_ROOT_CERT: ""
+        secretManagement:
+          externalSecretsOperator:
+            - secretStore:
+                name: ""
+                kind: ""
+              remoteKeys:
+                TIMESCALEDB_USERNAME:
+                  name: ""
+                  property: ""
+                TIMESCALEDB_PASSWORD:
+                  name: ""
+                  property: ""
+                TIMESCALEDB_SSL_ROOT_CERT:
+                  name: ""
+                  property: ""
+    redis:
+      installed: true
+      protocol: "redis"
+      # --  provide default values if redis.installed is set to false
+      hosts:
+        - redis:6379
+      secretName: ""
+      userKey: ""
+      passwordKey: ""
+      extraArgs: ""
+      ssl:
+        enabled: false
+        secret: ""
+        caFileKey: ""
+        trustStoreKey: ""
+        trustStorePasswordKey: ""
+      secrets:
+        kubernetesSecrets:
+          - secretName: ""
+            keys:
+              REDIS_USERNAME: ""
+              REDIS_PASSWORD: ""
+        secretManagement:
+          externalSecretsOperator:
+            - secretStore:
+                name: ""
+                kind: ""
+              remoteKeys:
+                REDIS_USERNAME:
+                  name: ""
+                  property: ""
+                REDIS_PASSWORD:
+                  name: ""
+                  property: ""
+  opa:
+    enabled: false
+enableAuth: true
+replicaCount: 1
+updateStrategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: 0
+    maxSurge: 100%
+java:
+  memory: 2500
+  memoryLimit: 600
+image:
+  registry: docker.io
+  repository: harness/stomanager-signed
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "1.62.1"
+  digest: "sha256:f09f80c7da0128eda24df5a79a18c66f82e555649c84193588e41e5be27e0115"
+  imagePullSecrets: []
+securityImage:
+  image:
+    registry: docker.io
+    repository: harness/sto-plugin
+    tag: latest # DO NOT OVERRIDE without checking in with STO team
+    digest: "sha256:87615fc86e7902a4fcbfb24c19eaa1a45a2730b89652cfacb9f191f1ba70924d"
+    imagePullSecrets: []
+addOnImage:
+  image:
+    registry: docker.io
+    repository: harness/ci-addon
+    pullPolicy: IfNotPresent
+    tag: "1.16.67"
+    digest: "sha256:2bbb4a29468d470b4044f2fe1a8db659a4753654086de154339ecb49b9983412"
+    imagePullSecrets: []
+leImage:
+  image:
+    registry: docker.io
+    repository: harness/ci-lite-engine
+    pullPolicy: IfNotPresent
+    tag: "1.16.67"
+    digest: "sha256:28df26e880a205a18c215dff38d7d10102ca58927d32a552d80a5e15004d0ffc"
+    imagePullSecrets: []
+s3UploadImage:
+  image:
+    registry: docker.io
+    repository: plugins/s3
+    pullPolicy: IfNotPresent
+    tag: "1.2.7"
+    digest: "sha256:b674880fbed07ab67e5f01239377ab8669c1d09ce31d8d58d34703d5eb3be7a1"
+    imagePullSecrets: []
+mongoSecrets:
+  userName:
+    name: harness-secrets
+    key: mongodbUsername
+  password:
+    name: mongodb-replicaset-chart
+    key: mongodb-root-password
+timescaleSecret:
+  password:
+    name: harness-secrets
+    key: timescaledbPostgresPassword
+nameOverride: ""
+fullnameOverride: ""
+ngServiceAccount: "test"
+redislabsCATruststore: "test"
+defaultInternalImageConnector: "account.harnessImage"
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: "harness-default"
+podAnnotations: {}
+podSecurityContext: {}
+# fsGroup: 2000
+
+securityContext:
+  runAsUser: 65534
+  runAsNonRoot: true
+# capabilities:
+#   drop:
+#   - ALL
+# readOnlyRootFilesystem: true
+
+database:
+  mongo:
+    harness:
+      enabled: false
+      protocol: ""
+      hosts: []
+      extraArgs: ""
+      secrets:
+        kubernetesSecrets:
+          - secretName: ""
+            keys:
+              MONGO_USER: ""
+              MONGO_PASSWORD: ""
+        secretManagement:
+          externalSecretsOperator:
+            - secretStore:
+                name: ""
+                kind: ""
+              remoteKeys:
+                MONGO_USER:
+                  name: ""
+                  property: ""
+                MONGO_PASSWORD:
+                  name: ""
+                  property: ""
+    harnesssto:
+      enabled: false
+      protocol: ""
+      hosts: []
+      extraArgs: ""
+      secrets:
+        kubernetesSecrets:
+          - secretName: ""
+            keys:
+              MONGO_USER: ""
+              MONGO_PASSWORD: ""
+        secretManagement:
+          externalSecretsOperator:
+            - secretStore:
+                name: ""
+                kind: ""
+              remoteKeys:
+                MONGO_USER:
+                  name: ""
+                  property: ""
+                MONGO_PASSWORD:
+                  name: ""
+                  property: ""
+    pmsharness:
+      enabled: false
+      protocol: ""
+      hosts: []
+      extraArgs: ""
+      secrets:
+        kubernetesSecrets:
+          - secretName: ""
+            keys:
+              MONGO_USER: ""
+              MONGO_PASSWORD: ""
+        secretManagement:
+          externalSecretsOperator:
+            - secretStore:
+                name: ""
+                kind: ""
+              remoteKeys:
+                MONGO_USER:
+                  name: ""
+                  property: ""
+                MONGO_PASSWORD:
+                  name: ""
+                  property: ""
+    notifications:
+      enabled: false
+      protocol: ""
+      hosts: []
+      extraArgs: ""
+      secrets:
+        kubernetesSecrets:
+          - secretName: ""
+            keys:
+              MONGO_USER: ""
+              MONGO_PASSWORD: ""
+        secretManagement:
+          externalSecretsOperator:
+            - secretStore:
+                name: ""
+                kind: ""
+              remoteKeys:
+                MONGO_USER:
+                  name: ""
+                  property: ""
+                MONGO_PASSWORD:
+                  name: ""
+                  property: ""
+  redis:
+    events:
+      enabled: false
+      protocol: ""
+      hosts: []
+      secretName: ""
+      userKey: ""
+      passwordKey: ""
+      extraArgs: ""
+      ssl:
+        secret: ""
+        enabled: false
+        caFileKey: ""
+        trustStoreKey: ""
+        trustStorePasswordKey: ""
+      secrets:
+        secretManagement:
+          externalSecretsOperator:
+            - secretStore:
+                name: ""
+                kind: ""
+              remoteKeys:
+                REDIS_USERNAME:
+                  name: ""
+                  property: ""
+                REDIS_PASSWORD:
+                  name: ""
+                  property: ""
+                REDIS_CA:
+                  name: ""
+                  property: ""
+                REDIS_SSL_CA_TRUST_STORE_PASSWORD:
+                  name: ""
+                  property: ""
+    lock:
+      enabled: false
+      protocol: ""
+      hosts: []
+      secretName: ""
+      userKey: ""
+      passwordKey: ""
+      extraArgs: ""
+      ssl:
+        enabled: false
+        secret: ""
+        caFileKey: ""
+        trustStoreKey: ""
+        trustStorePasswordKey: ""
+      secrets:
+        secretManagement:
+          externalSecretsOperator:
+            - secretStore:
+                name: ""
+                kind: ""
+              remoteKeys:
+                REDIS_USERNAME:
+                  name: ""
+                  property: ""
+                REDIS_PASSWORD:
+                  name: ""
+                  property: ""
+                REDIS_CA:
+                  name: ""
+                  property: ""
+                REDIS_SSL_CA_TRUST_STORE_PASSWORD:
+                  name: ""
+                  property: ""
+    cache:
+      enabled: false
+      protocol: ""
+      hosts: []
+      secretName: ""
+      userKey: ""
+      passwordKey: ""
+      extraArgs: ""
+      ssl:
+        enabled: false
+        secret: ""
+        caFileKey: ""
+        trustStoreKey: ""
+        trustStorePasswordKey: ""
+      secrets:
+        secretManagement:
+          externalSecretsOperator:
+            - secretStore:
+                name: ""
+                kind: ""
+              remoteKeys:
+                REDIS_USERNAME:
+                  name: ""
+                  property: ""
+                REDIS_PASSWORD:
+                  name: ""
+                  property: ""
+                REDIS_CA:
+                  name: ""
+                  property: ""
+                REDIS_SSL_CA_TRUST_STORE_PASSWORD:
+                  name: ""
+                  property: ""
+timescaledb:
+  # -- TimescaleDB host names
+  hosts: []
+  # -- Enable TimescaleDB SSL
+  # sslEnabled: false
+  # -- TimescaleDB secrets
+  secrets:
+    kubernetesSecrets:
+      - secretName: ""
+        keys:
+          TIMESCALEDB_USERNAME: ""
+          TIMESCALEDB_PASSWORD: ""
+          TIMESCALEDB_SSL_ROOT_CERT: ""
+    secretManagement:
+      externalSecretsOperator:
+        - secretStore:
+            name: ""
+            kind: ""
+          remoteKeys:
+            TIMESCALEDB_USERNAME:
+              name: ""
+              property: ""
+            TIMESCALEDB_PASSWORD:
+              name: ""
+              property: ""
+            TIMESCALEDB_SSL_ROOT_CERT:
+              name: ""
+              property: ""
+probes:
+  livenessProbe:
+    httpGet:
+      path: /health/liveness
+      port: http
+    timeoutSeconds: 2
+    periodSeconds: 5
+    failureThreshold: 5
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: http
+    timeoutSeconds: 2
+    periodSeconds: 10
+    failureThreshold: 5
+  startupProbe:
+    httpGet:
+      path: /health
+      port: http
+    timeoutSeconds: 2
+    periodSeconds: 10
+    failureThreshold: 25
+service:
+  annotations: {}
+  type: ClusterIP
+  port: 7090
+  grpcport: 9979
+ingress:
+  objects:
+    - annotations:
+        nginx.ingress.kubernetes.io/rewrite-target: /$2
+        nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+        nginx.ingress.kubernetes.io/use-regex: "true"
+      paths:
+        - path: '{{ .Values.global.ingress.pathPrefix }}/sto-manager(/|$)(.*)'
+  annotations: {}
+resources:
+  # limits:
+  #   memory: 128Mi
+  requests:
+    cpu: 1
+    memory: 3Gi
+autoscaling:
+  enabled: false
+  targetCPU: ""
+  targetMemory: ""
+stoServiceGlobalToken:
+  name: harness-secrets
+  key: stoAppHarnessToken
+nodeSelector: {}
+tolerations: []
+affinity: {}
+# Commented out at request of Will as not needed.
+# env:
+#   secrets:
+#   config:
+#     APP_ENABLE_UI: "true"
+#     APP_TOKEN_JWT_SECRET: test
+#     APP_INTERNAL_TOKEN_JWT_SECRET: test
+#     STO_SERVICE_GLOBAL_TOKEN: "token"
+additionalConfigs: {}
+# extraVolumes:
+#   - name: volume-test
+#     configMap:
+#       name: test-config
+#       # readOnly: true
+extraVolumes: []
+# extraVolumeMounts:
+#   - name: volume-test
+#     mountPath: /opt/harness/config
+extraVolumeMounts: []
+lifecycleHooks: {}
+# lifecycleHooks:
+#   postStart:
+#     exec:
+#       command:
+#   preStop:
+#     exec:
+#       command:
+virtualService:
+  annotations: {}
+  objects:
+    - name: sto-manager
+      pathMatchType: prefix
+      pathRewrite: "/"
+      paths:
+        - path: '{{ .Values.global.istio.virtualService.pathPrefix }}/sto-manager/'
+secrets:
+  default:
+    OPA_SERVER_SECRET: "dOkdsVqdRPPRJG31XU0qY4MPqmBBMk0PTAGIKM6O7TGqhjyxScIdJe80mwh5Yb5zF3KxYBHw6B3Lfzlq"
+    VERIFICATION_SERVICE_SECRET: "67d9b94d9856665afc21acd3aa745401"
+  kubernetesSecrets:
+    - secretName: ""
+      keys:
+        OPA_SERVER_SECRET: ""
+        VERIFICATION_SERVICE_SECRET: ""
+  secretManagement:
+    externalSecretsOperator:
+      - secretStore:
+          name: ""
+          kind: ""
+        remoteKeys:
+          OPA_SERVER_SECRET:
+            name: ""
+            property: ""
+          VERIFICATION_SERVICE_SECRET:
+            name: ""
+            property: ""
+config:
+  EVENTS_FRAMEWORK_REDIS_URL: '{{ include "harnesscommon.dbv3.redisConnection" (dict "ctx" $ "database" "events") }}'
+  EVENTS_FRAMEWORK_USE_SENTINEL: '{{ .Values.global.database.redis.installed }}'
+  EVENTS_FRAMEWORK_REDIS_SENTINELS: '{{ include "harnesscommon.dbv3.redisConnection" (dict "ctx" $ "database" "events") }}'
+  LOCK_CONFIG_USE_SENTINEL: '{{ .Values.global.database.redis.installed }}'
+  LOCK_CONFIG_REDIS_SENTINELS: '{{ include "harnesscommon.dbv3.redisConnection" (dict "ctx" $ "database" "lock") }}'
+  LOCK_CONFIG_REDIS_URL: '{{ include "harnesscommon.dbv3.redisConnection" (dict "ctx" $ "database" "lock") }}'
+  CACHE_CONFIG_REDIS_SENTINELS: '{{ include "harnesscommon.dbv3.redisConnection" (dict "ctx" $ "database" "cache") }}'
+  CACHE_CONFIG_USE_SENTINEL: '{{ .Values.global.database.redis.installed }}'
+  CACHE_CONFIG_REDIS_URL: '{{ include "harnesscommon.dbv3.redisConnection" (dict "ctx" $ "database" "cache") }}'
+  TIMESCALE_URI: 'jdbc:postgresql://timescaledb-single-chart.{{ .Release.Namespace }}:5432/harness'
+  ACCESS_CONTROL_ENABLED: "true"
+  ENABLE_AUTH: '{{ .Values.enableAuth }}'
+  DEPLOY_MODE: KUBERNETES_ONPREM
+  ADDON_IMAGE: '{{ .Values.addOnImage.image.repository }}:{{ .Values.addOnImage.image.tag }}'
+  LE_IMAGE: '{{ .Values.leImage.image.repository }}:{{ .Values.leImage.image.tag }}'
+  MEMORY: '{{ .Values.java.memory }}'
+  MANAGER_TARGET: harness-manager:9879
+  MANAGER_AUTHORITY: harness-manager:9879
+  MANAGER_URL: 'http://harness-manager.{{ .Release.Namespace }}.svc.cluster.local:9090/api/'
+  SCM_SERVICE_URI: "scm-service:8091"
+  LOG_SERVICE_ENDPOINT: '{{ .Values.global.loadbalancerURL }}/gateway/log-service/'
+  LOG_SERVICE_INTERNAL_URL: 'http://log-service.{{ .Release.Namespace }}.svc.cluster.local:8079/'
+  TI_SERVICE_ENDPOINT: '{{ .Values.global.loadbalancerURL }}/ti-service/'
+  TI_SERVICE_INTERNAL_ENDPOINT: 'http://ti-service.{{ .Release.Namespace }}.svc.cluster.local:8078/'
+  STO_SERVICE_ENDPOINT: '{{ .Values.global.loadbalancerURL }}/sto/'
+  STO_SERVICE_INTERNAL_ENDPOINT: 'http://sto-core.{{ .Release.Namespace }}.svc.cluster.local:4000/'
+  NG_MANAGER_URL: 'http://ng-manager.{{ .Release.Namespace }}.svc.cluster.local:7090/'
+  ENABLE_APPDYNAMICS: "false"
+  DISABLE_NEW_RELIC: "true"
+  SHOULD_CONFIGURE_WITH_PMS: "true"
+  PMS_TARGET: pipeline-service:12011
+  PMS_AUTHORITY: pipeline-service:12011
+  GRPC_SERVER_PORT: "9979"
+  DEFAULT_INTERNAL_IMAGE_CONNECTOR: '{{ .Values.defaultInternalImageConnector }}'
+  API_URL: '{{ .Values.global.loadbalancerURL }}/ng/#/'
+  DEFAULT_CPU_LIMIT: "500"
+  DEFAULT_MEMORY_LIMIT: '{{ .Values.java.memoryLimit }}'
+  MONGO_INDEX_MANAGER_MODE: AUTO
+  STACK_DRIVER_LOGGING_ENABLED: '{{ .Values.global.stackDriverLoggingEnabled }}'
+  GOOGLE_APPLICATION_CREDENTIALS: /opt/harness/svc/cloud_stackdriver.json
+  USE_REDIS_FOR_SDK_RESPONSE_EVENTS: "true"
+  ENABLE_DASHBOARD_TIMESCALE: "true"
+  CACHE_BACKEND: REDIS
+  ENFORCEMENT_CHECK_ENABLED: "false"
+  PMS_SDK_ORCHESTRATION_EVENT_POOL_CORE_SIZE: "15"
+  S3_UPLOAD_IMAGE: '{{ .Values.s3UploadImage.image.repository }}:{{ .Values.s3UploadImage.image.tag }}'
+  USE_DMS: "false"
+  SECURITY_IMAGE: '{{ .Values.securityImage.image.repository }}:{{ .Values.securityImage.image.tag }}'
+  FEATURE_FLAG_SYSTEM: LOCAL
+  EVENTS_FRAMEWORK_SENTINEL_MASTER_NAME: 'harness-redis'
+  LOCK_CONFIG_SENTINEL_MASTER_NAME: "harness-redis"
+  CACHE_CONFIG_SENTINEL_MASTER_NAME: "harness-redis"
+  SSCA_SERVICE_ENDPOINT: '{{ .Values.global.loadbalancerURL }}/ssca-manager/'
+  REDISSON_PING_CONNECTION_INTERVAL_IN_MILLIS: "0"
+  GITNESS_INTERNAL_URL: http://code-api:80/
+  HARNESS_CODE_GIT_URL: '{{ .Values.global.loadbalancerURL }}/code/git'
+rbac:
+  rules: []
+pdb:
+  create: false

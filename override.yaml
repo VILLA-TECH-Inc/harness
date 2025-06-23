@@ -1,0 +1,376 @@
+global:
+  # Public URL clients will hit
+  loadbalancerURL: "URL"
+
+  ingress:
+    enabled: true
+    className: nginx
+    hosts:
+      - "<hostname>"
+    tls:
+      enabled: true
+      # secretName: wildcard-apps-harness-tls
+    objects:
+      annotations:
+        nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+        nginx.ingress.kubernetes.io/ssl-redirect: "true"
+        nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+        nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+        nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+
+  autoscaling:
+    enabled: true
+  ha: false
+
+  istio:
+    enabled: false
+
+  license:
+    ng: ""
+
+  storageClassName: nfs-client
+
+  database:
+    postgres:
+      installed: true
+      secretName: harness-postgres
+      passwordKey: ""
+      extraArgs: ""
+
+  # Module toggles - ONLY enable what we have licenses for
+  cd:    { enabled: true  }   # Continuous Deployment
+  ci:    { enabled: true  }   # Continuous Integration  
+  sto:   { enabled: true  }   # Security Testing Orchestration
+  ssca:  { enabled: true }   # Software Supply Chain Assurance
+  # Explicitly disable everything else
+  chaos: { enabled: false }   # Chaos Engineering
+  ccm:   { enabled: false }   # Cloud Cost Management
+  ff:    { enabled: false }   # Feature Flags
+  srm:   { enabled: false }   # Site Reliability Management
+
+  # Helper services
+  cdc:   { enabled: true  }   # Change-Data-Capture
+  ti:    { enabled: true  }   # Test-Intelligence
+
+  # Node selectors and tolerations
+  #nodeSelector:
+  #  kubernetes.io/os: linux
+  #tolerations: []
+
+# === PLATFORM CONFIGURATION ===
+platform:
+  gateway:
+    autoscaling:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 2
+      targetCPU: 80
+      targetMemory: 80
+    java:
+      memory: 1024
+    replicaCount: 1
+    nodeSelector:
+      kubernetes.io/os: linux
+    resources:
+      requests: { cpu: "200m", memory: "1Gi" }
+      limits:   { cpu: "1",    memory: "2Gi" }
+
+  ng-manager:
+    autoscaling:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 2
+      targetCPU: 80
+      targetMemory: 80
+    java:
+      memory: "1536m"
+    replicaCount: 1
+    nodeSelector:
+      kubernetes.io/os: linux
+    resources:
+      requests: { cpu: "500m", memory: "2Gi" }
+      limits:   { cpu: "2",    memory: "3Gi" }
+
+  pipeline-service:
+    autoscaling:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 2
+      targetCPU: 80
+      targetMemory: 80
+    java:
+      memory: "2048m"
+    replicaCount: 1
+    nodeSelector:
+      kubernetes.io/os: linux
+    resources:
+      requests: { cpu: "400m", memory: "2Gi" }
+      limits:   { cpu: "1.5",  memory: "3Gi" }
+
+  access-control:
+    autoscaling:
+      enabled: false
+    java:
+      memory: 256m
+    replicaCount: 1
+    nodeSelector:
+      kubernetes.io/os: linux
+    resources:
+      requests: { cpu: "100m", memory: "512Mi" }
+      limits:   { cpu: "500m", memory: "1Gi" }
+
+  harness-manager:
+    autoscaling:
+      enabled: false
+    java:
+      memory: "1536"
+    replicaCount: 1
+    nodeSelector:
+      kubernetes.io/os: linux
+    resources:
+      requests: { cpu: "500m", memory: "2Gi" }
+      limits:   { cpu: "1.5",  memory: "3Gi" }
+
+  platform-service:
+    autoscaling:
+      enabled: false
+    java:
+      memory: "1024m"
+    replicaCount: 1
+    nodeSelector:
+      kubernetes.io/os: linux
+    resources:
+      requests: { cpu: "200m", memory: "1Gi" }
+      limits:   { cpu: "1",    memory: "1.5Gi" }
+
+  change-data-capture:
+    autoscaling:
+      enabled: false
+    java:
+      memory: 1536
+    replicaCount: 1
+    nodeSelector:
+      kubernetes.io/os: linux
+    resources:
+      requests: { cpu: "300m", memory: "2Gi" }
+      limits:   { cpu: "1",    memory: "2.5Gi" }
+
+  template-service:
+    autoscaling:
+      enabled: false
+    java:
+      memory: "768m"
+    replicaCount: 1
+    resources:
+      requests: { cpu: "100m", memory: "1Gi" }
+      limits:   { cpu: "500m", memory: "1.5Gi" }
+
+  log-service:
+    replicaCount: 1
+    resources:
+      requests: { cpu: "200m", memory: "512Mi" }
+      limits:   { cpu: "1",    memory: "1.5Gi" }
+
+  next-gen-ui:
+    autoscaling:
+      enabled: false
+    replicaCount: 1
+    resources:
+      requests: { cpu: "50m",  memory: "64Mi" }
+      limits:   { cpu: "200m", memory: "128Mi" }
+
+  ng-auth-ui:
+    autoscaling:
+      enabled: false
+    replicaCount: 1
+    resources:
+      requests: { cpu: "25m",  memory: "32Mi" }
+      limits:   { cpu: "100m", memory: "64Mi" }
+
+  ui:
+    autoscaling:
+      enabled: false
+    replicaCount: 1
+    resources:
+      requests: { cpu: "50m",  memory: "64Mi" }
+      limits:   { cpu: "200m", memory: "128Mi" }
+
+  scm-service:
+    autoscaling:
+      enabled: false
+    replicaCount: 1
+    resources:
+      requests: { cpu: "50m",  memory: "128Mi" }
+      limits:   { cpu: "200m", memory: "256Mi" }
+
+  delegate-proxy:
+    autoscaling:
+      enabled: false
+    replicaCount: 1
+    resources:
+      requests: { cpu: "25m", memory: "32Mi" }
+      limits:   { cpu: "100m", memory: "64Mi" }
+
+  ng-dashboard-aggregator:
+    autoscaling:
+      enabled: false
+    replicaCount: 1
+    java:
+      memory: "1536"
+    resources:
+      requests: { cpu: "50m",  memory: "1.5Gi" }
+      limits:   { cpu: "200m", memory: "2Gi" }
+
+  # Database configuration
+  bootstrap:
+    database:
+      mongodb:
+        extraFlags:
+          - "--wiredTigerCacheSizeGB=0.5"
+        persistence:
+          size: 100Gi
+        replicaCount: 1
+        nodeSelector:
+          kubernetes.io/os: linux
+        resources:
+          requests: { cpu: "250m", memory: "512Mi" }
+          limits:   { cpu: "1",    memory: "1Gi" }
+
+      postgresql:
+        primary:
+          persistence:
+            size: 50Gi
+          resources:
+            requests: { cpu: "200m", memory: "512Mi" }
+            limits:   { cpu: "1",    memory: "1Gi" }
+        nodeSelector:
+          kubernetes.io/os: linux
+
+      redis:
+        architecture: standalone
+        auth:
+          enabled: true
+          password: "redis-password-demo"
+        master:
+          resources:
+            requests: { cpu: "200m", memory: "256Mi" }
+            limits:   { cpu: "1",    memory: "512Mi" }
+          persistence:
+            enabled: true
+            size: 20Gi
+          configuration: |-
+            maxmemory-policy allkeys-lru
+            maxmemory 400mb
+            save ""
+            stop-writes-on-bgsave-error no
+        nodeSelector:
+          kubernetes.io/os: linux
+
+      timescaledb:
+        autoscaling:
+          enabled: false
+        replicaCount: 1
+        persistentVolumes:
+          data: { enabled: true, size: 200Gi }
+          wal:  { enabled: true, size: 10Gi  }
+        nodeSelector:
+          kubernetes.io/os: linux
+        resources:
+          requests: { cpu: "100m", memory: "256Mi" }
+          limits:   { cpu: "500m", memory: "512Mi" }
+
+      minio:
+        defaultBuckets: "logs"
+        fullnameOverride: "minio"
+        mode: standalone
+        persistence:
+          size: 100Gi
+
+      clickhouse:
+        enabled: false
+
+    networking:
+      defaultbackend:
+        create: false
+        resources:
+          requests: { cpu: "10m", memory: "16Mi" }
+          limits:   { cpu: "50m", memory: "32Mi" }
+
+      nginx:
+        create: false
+        resources:
+          requests: { cpu: "50m",  memory: "64Mi" }
+          limits:   { cpu: "200m", memory: "128Mi" }
+
+# === CI CONFIGURATION ===
+ci:
+  ci-manager:
+    autoscaling:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 2
+      targetCPU: 80
+      targetMemory: 80
+    java:
+      memory: "1536m"
+    replicaCount: 1
+    resources:
+      requests: { cpu: "500m", memory: "2Gi" }
+      limits:   { cpu: "2",    memory: "2.5Gi" }
+
+  ti-service:
+    autoscaling:
+      enabled: false
+    jobresources:
+      requests: { cpu: "25m",  memory: "128Mi" }
+      limits:   { cpu: "100m", memory: "256Mi" }
+    replicaCount: 1
+    resources:
+      requests: { cpu: "200m", memory: "512Mi" }
+      limits:   { cpu: "500m", memory: "1Gi" }
+
+# === STO CONFIGURATION ===
+sto:
+  sto-core:
+    autoscaling:
+      enabled: false
+    replicaCount: 1
+    resources:
+      requests: { cpu: "200m", memory: "512Mi" }
+      limits:   { cpu: "500m", memory: "1Gi" }
+
+  sto-manager:
+    autoscaling:
+      enabled: false
+    replicaCount: 1
+    resources:
+      requests: { cpu: "300m", memory: "1Gi" }
+      limits:   { cpu: "750m", memory: "2Gi" }
+
+# === SSCA CONFIGURATION ===
+# Software Supply Chain Assurance - SBOM and SLSA attestation module
+ssca:
+  # SSCA Manager - Java-based service for SBOM processing, policy enforcement, and attestation
+  ssca-manager:
+    autoscaling:
+      enabled: false
+    java:
+      memory: "1280m"
+    replicaCount: 1
+    nodeSelector:
+      kubernetes.io/os: linux
+    resources:
+      requests: { cpu: "300m", memory: "1.5Gi" }
+      limits:   { cpu: "1",    memory: "2.5Gi" }
+
+  # SSCA Core - Handles SBOM ingestion and basic supply chain operations  
+  ssca-core:
+    autoscaling:
+      enabled: false
+    replicaCount: 1
+    nodeSelector:
+      kubernetes.io/os: linux
+    resources:
+      requests: { cpu: "200m", memory: "512Mi" }
+      limits:   { cpu: "500m", memory: "1Gi" }
+

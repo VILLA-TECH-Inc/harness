@@ -1,0 +1,18 @@
+dependencies:
+- name: common
+  repository: https://charts.bitnami.com/bitnami
+  version: 2.27.0
+- name: database
+  repository: file://./database
+  version: 0.13.11
+- name: harness-secrets
+  repository: file://./secrets
+  version: 0.10.0
+- name: rbac
+  repository: file://./rbac
+  version: 0.9.0
+- name: networking
+  repository: file://./networking
+  version: 0.10.0
+digest: sha256:b67b54f85f3562ed487c8478a0a562aa52f025bfd8d95fff13ee606f23b16ad8
+generated: "2025-03-24T14:52:41.282513-07:00"
