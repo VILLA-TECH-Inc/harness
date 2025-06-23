@@ -3,7 +3,7 @@ entries:
   harness:
     - apiVersion: v2
       appVersion: 1.0.80917
-      created: "2025-06-23T16:49:15.909336-04:00"
+      created: "2025-06-23T17:20:27.02937-04:00"
       dependencies:
         - name: harness-common
           repository: https://harness.github.io/helm-common
@@ -56,7 +56,7 @@ entries:
           repository: https://harness.github.io/helm-charts
           version: 0.28.0
       description: Helm Chart for deploying Harness.
-      digest: 39c946eb3fee2dee62223f6e5e45590fd5daa9375664f7e111ffc4a7e23df780
+      digest: 6752688d2d16adb1a1874325828e21b3a6150295fe51455b362a796b259bf5f5
       kubeVersion: ">=1.27.0-0"
       name: harness
       type: application
@@ -65,7 +65,7 @@ entries:
       version: 0.28.1
     - apiVersion: v2
       appVersion: 1.0.80917
-      created: "2025-06-23T16:49:16.032921-04:00"
+      created: "2025-06-23T17:20:27.15456-04:00"
       dependencies:
         - name: harness-common
           repository: https://harness.github.io/helm-common
@@ -125,4 +125,4 @@ entries:
       urls:
         - https://github.com/VILLA-TECH-Inc/harness/releases/download/0.28.1/harness-0.28.1.tgz
       version: 0.28.1
-generated: "2025-06-23T16:49:15.768212-04:00"
+generated: "2025-06-23T17:20:26.885542-04:00"
